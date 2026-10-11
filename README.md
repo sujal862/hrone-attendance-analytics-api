@@ -30,6 +30,7 @@ curl "http://localhost:8000/analytics/departments/summary?month=2026-07"
 
 ```powershell
 python -m py_compile app/main.py
+python -m pip install pytest httpx
 python -m pytest -q
 ```
 

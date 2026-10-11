@@ -17,3 +17,7 @@
 | 13 | Legacy data | Missing `history`/`half_day` were not normalized. | Treat them as empty/false in responses and analytics. |
 
 I retained `load_dotenv()` because it does not override real environment variables by default. I also retained synchronous PyMongo: FastAPI runs ordinary endpoint functions in a worker pool, which is adequate for this scoped service.
+
+## Final contract audit
+
+The first implementation needed three further corrections. MongoDB `$round` uses ties-to-even, so department work-hour averages and trend rates could disagree with R8 at exact half-way values; these pipelines now use decimal half-up rounding. A punch-out racing with a correction could have written derived values based on the previous `punch_in`; its atomic update now checks that the punch-in has not changed. Finally, the timestamp model accepted values beyond the OpenAPI maximum; it now enforces the exact contract limit. The added tests cover these boundaries along with overnight punch-out concurrency, joiners, weekend rows, empty days, and leaderboard ties.
